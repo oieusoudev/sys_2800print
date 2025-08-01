@@ -114,13 +114,12 @@ export function useBreakTimer() {
           
           // Update backend every 30 seconds
           if (newTimeUsed % 30 === 0) {
-            breakService.updateBreakSession({
+            breakService.updateBreakSession(newTimeUsed, {
               isActive: prev.isActive,
               isPaused: prev.isPaused,
               startTime: prev.startTime,
               pausedTime: prev.pausedTime,
-              lastActiveTime: Date.now(),
-              // If total_time_used is required, add it to the type definition instead
+              lastActiveTime: Date.now()
             }).catch(console.error);
           }
           

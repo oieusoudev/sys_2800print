@@ -37,8 +37,6 @@ export class BreakService {
     return response.data;
   }
 
-  async updateBreakSession(sessionData: Partial<BreakSession['sessions_data']>): Promise<BreakSession> {
-  }
   async updateBreakSession(totalTimeUsed: number, sessionData: BreakSession['sessions_data']): Promise<BreakSession> {
     const response = await apiClient.put<BreakSession>('/break-sessions/update', { 
       total_time_used: totalTimeUsed,
