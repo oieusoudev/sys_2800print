@@ -174,26 +174,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="bg-slate-700 rounded-lg p-3 sm:p-4 border border-slate-600">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-yellow-500 rounded flex items-center justify-center">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900">⚙️</span>
-                </div>
-                <span className="text-yellow-500 font-medium text-sm sm:text-base">Usuário de Teste</span>
-              </div>
-              <div className="space-y-1 text-xs sm:text-sm">
-                <p className="text-slate-300">
-                  <span className="font-medium">Usuário:</span> admin
-                </p>
-                <p className="text-slate-300">
-                  <span className="font-medium">Senha:</span> admin123
-                </p>
-                <p className="text-slate-300 mt-2">
-                  <span className="font-medium">Ou use:</span> funcionario / funcionario123
-                </p>
-              </div>
-            </div>
-
             <Button
               type="submit"
               className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-medium text-sm sm:text-base"
