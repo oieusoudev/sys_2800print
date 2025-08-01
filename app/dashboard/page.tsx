@@ -56,8 +56,8 @@ export default function DashboardPage() {
             <div>
               <h1 className="text-lg font-semibold text-white">Folha de Ponto</h1>
               <p className="text-sm text-slate-400"> 
-                Bem-vindo, {user.fullName || user.username}
-                {user.isAdmin && <span className="ml-2 text-yellow-400">(Admin)</span>}
+                Bem-vindo, {user.full_name || user.username}
+                {user.is_admin && <span className="ml-2 text-yellow-400">(Admin)</span>}
               </p>
             </div>
           </div>
