@@ -10,8 +10,8 @@ export function isWebAuthnSupported(): boolean {
   return !!(
     isSecureContext &&
     navigator.credentials && 
-    navigator.credentials.create && 
-    navigator.credentials.get &&
+    typeof navigator.credentials.create === 'function' && 
+    typeof navigator.credentials.get === 'function' &&
     window.PublicKeyCredential
   );
 }
