@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { extractUserFromToken } from '@/lib/jwt';
+import { BreakSession } from '@/types/api';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +32,15 @@ export async function POST(request: NextRequest) {
     const today = new Date().toISOString().split('T')[0];
     const now = Date.now();
 
+    // Define the default session data structure
+    const defaultSessionData: BreakSession['sessions_data'] = {
+      pausedTime: 0,
+      startTime: null,
+      isActive: false,
+      isPaused: false,
+      lastActiveTime: null
+    };
+
     // Buscar sessão existente para hoje
     let { data: breakSession, error: fetchError } = await supabase
       .from('break_sessions')
@@ -48,11 +58,11 @@ export async function POST(request: NextRequest) {
     }
 
     let totalTimeUsed = 0;
-    let existingSessionData = {};
+    let existingSessionData: BreakSession['sessions_data'] = { ...defaultSessionData };
     
     if (breakSession) {
       totalTimeUsed = breakSession.total_time_used || 0;
-      existingSessionData = breakSession.sessions_data || {};
+      existingSessionData = { ...defaultSessionData, ...(breakSession.sessions_data || {}) };
       
       // Se a sessão estava ativa e não pausada, calcular tempo adicional
       if (existingSessionData.isActive && 
@@ -64,7 +74,8 @@ export async function POST(request: NextRequest) {
     }
 
     const sessionData = {
-      pausedTime: existingSessionData.pausedTime || 0,
+      ...defaultSessionData,
+      pausedTime: existingSessionData.pausedTime,
       startTime: existingSessionData.startTime || now,
       isActive: true,
       isPaused: false,
