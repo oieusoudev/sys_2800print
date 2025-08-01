@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { PunchLocation } from '@/types/api';
 import { getLocationNameCached, cleanTextForCSV } from '@/utils/locationService';
 import { extractUserFromToken } from '@/lib/jwt';
 
@@ -144,7 +145,7 @@ export async function GET(request: NextRequest) {
 
       // Obter localizações por tipo de ponto
       const getLocationByType = (type: string) => {
-        return locations.find(loc => loc.punch_type === type);
+        return locations.find((loc: PunchLocation) => loc.punch_type === type);
       };
 
       const clockInLocation = getLocationByType('clock_in');
