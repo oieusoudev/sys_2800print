@@ -45,7 +45,7 @@ export function BiometricSettings() {
           setHasCredentials(hasUserCredentials);
           
           if (hasUserCredentials) {
-            const credentials = await getUserCredentials();
+            const credentials = await getUserCredentials(user.username);
             setUserCredentials(credentials);
           }
         }
