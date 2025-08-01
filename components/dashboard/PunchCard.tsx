@@ -249,7 +249,7 @@ export function PunchCard() {
             const Icon = action.icon;
             const isCompleted = todayEntry?.[action.type];
             const isNext = action.type === nextAction;
-            const isDisabled = !isLocationReady || isProcessing || isCompleted || (!isNext && !isCompleted);
+            const isDisabled = Boolean(!isLocationReady || isProcessing || isCompleted || (!isNext && !isCompleted));
 
             return (
               <Button
