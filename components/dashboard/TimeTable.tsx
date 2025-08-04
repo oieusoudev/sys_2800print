@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { timeEntryService } from '@/services/timeEntryService';
 import { breakService } from '@/services/breakService';
 import { TimeEntry } from '@/types/api';
+import { PunchLocation } from '@/types/api';
 
 export function TimeTable() {
   const { entries: hookEntries, refreshData } = useTimeEntries();
@@ -20,7 +21,7 @@ export function TimeTable() {
   const [dailyBreakTimes, setDailyBreakTimes] = useState<Record<string, number>>({});
   const [isLoadingBreakTimes, setIsLoadingBreakTimes] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{
-    location: any;
+    location: PunchLocation | null;
     punchType: string;
     punchTime: string;
     date: string;
@@ -159,7 +160,7 @@ export function TimeTable() {
     punchTime, 
     date 
   }: { 
-    location: any; 
+    location: PunchLocation | null; 
     label: string; 
     punchType: string; 
     punchTime: string; 
@@ -252,7 +253,7 @@ export function TimeTable() {
                         </TableCell>
                         <TableCell className="text-center">
                           <LocationButton 
-                            location={entry.punch_locations?.find(p => p.punch_type === 'clock_in')}
+                            location={entry.punch_locations?.find(p => p.punch_type === 'clock_in') || null}
                             label="entrada"
                             punchType="clock_in"
                             punchTime={entry.clock_in ? formatTime(entry.clock_in) : ''}
@@ -271,7 +272,7 @@ export function TimeTable() {
                         </TableCell>
                         <TableCell className="text-center">
                           <LocationButton 
-                            location={entry.punch_locations?.find(p => p.punch_type === 'lunch_out')}
+                            location={entry.punch_locations?.find(p => p.punch_type === 'lunch_out') || null}
                             label="saída almoço"
                             punchType="lunch_out"
                             punchTime={entry.lunch_out ? formatTime(entry.lunch_out) : ''}
@@ -283,7 +284,7 @@ export function TimeTable() {
                         </TableCell>
                         <TableCell className="text-center">
                           <LocationButton 
-                            location={entry.punch_locations?.find(p => p.punch_type === 'lunch_in')}
+                            location={entry.punch_locations?.find(p => p.punch_type === 'lunch_in') || null}
                             label="volta almoço"
                             punchType="lunch_in"
                             punchTime={entry.lunch_in ? formatTime(entry.lunch_in) : ''}
@@ -295,7 +296,7 @@ export function TimeTable() {
                         </TableCell>
                         <TableCell className="text-center">
                           <LocationButton 
-                            location={entry.punch_locations?.find(p => p.punch_type === 'clock_out')}
+                            location={entry.punch_locations?.find(p => p.punch_type === 'clock_out') || null}
                             label="saída"
                             punchType="clock_out"
                             punchTime={entry.clock_out ? formatTime(entry.clock_out) : ''}

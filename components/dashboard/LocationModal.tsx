@@ -5,18 +5,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { MapPin, ExternalLink, Clock, Target, Navigation } from 'lucide-react';
 import { getLocationNameCached } from '@/utils/locationService';
-import { getGoogleMapsUrl, formatCoordinates, getAccuracyLevel } from '@/utils/geolocationUtils';
+import { formatCoordinates, getAccuracyLevel } from '@/utils/geolocationUtils';
+import { PunchLocation } from '@/types/api';
+
+// Helper function to create Google Maps URL from PunchLocation
+const getGoogleMapsUrlFromPunchLocation = (location: PunchLocation) => {
+  return `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+};
 
 interface LocationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  location: {
-    lat: number;
-    lng: number;
-    accuracy: number;
-    timestamp: number;
-    punchType: string;
-  } | null;
+  location: PunchLocation | null;
   punchType: string;
   punchTime: string;
   date: string;
@@ -36,7 +36,7 @@ export function LocationModal({
   useEffect(() => {
     if (location && isOpen) {
       setIsLoadingLocation(true);
-      getLocationNameCached(location.lat, location.lng)
+      getLocationNameCached(location.latitude, location.longitude)
         .then(name => {
           setLocationName(name);
         })
@@ -51,7 +51,7 @@ export function LocationModal({
 
   if (!location) return null;
 
-  const accuracyInfo = getAccuracyLevel(location.accuracy);
+  const accuracyInfo = getAccuracyLevel(location.accuracy ?? 0);
   const punchTypeLabels: Record<string, string> = {
     clock_in: 'Entrada',
     lunch_out: 'Saída Almoço',
@@ -123,10 +123,10 @@ export function LocationModal({
               <span className="text-slate-400 text-sm">Coordenadas:</span>
             </div>
             <p className="text-white font-mono text-sm">
-              {formatCoordinates(location.lat, location.lng)}
+              {formatCoordinates(location.latitude, location.longitude)}
             </p>
             <p className="text-slate-400 text-xs mt-1">
-              Lat: {location.lat.toFixed(6)}, Lng: {location.lng.toFixed(6)}
+              Lat: {location.latitude.toFixed(6)}, Lng: {location.longitude.toFixed(6)}
             </p>
           </div>
 
@@ -135,19 +135,19 @@ export function LocationModal({
             <div className="flex items-center justify-between mb-2">
               <span className="text-slate-400 text-sm">Precisão:</span>
               <span className={`font-medium ${accuracyInfo.color}`}>
-                {location.accuracy.toFixed(0)}m ({accuracyInfo.label})
+                {(location.accuracy ?? 0).toFixed(0)}m ({accuracyInfo.label})
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${
-                location.accuracy <= 20 ? 'bg-green-400' :
-                location.accuracy <= 50 ? 'bg-blue-400' :
-                location.accuracy <= 100 ? 'bg-yellow-400' : 'bg-red-400'
+                (location.accuracy ?? 0) <= 20 ? 'bg-green-400' :
+                (location.accuracy ?? 0) <= 50 ? 'bg-blue-400' :
+                (location.accuracy ?? 0) <= 100 ? 'bg-yellow-400' : 'bg-red-400'
               }`} />
               <span className="text-xs text-slate-400">
-                {location.accuracy <= 20 ? 'Excelente precisão' :
-                 location.accuracy <= 50 ? 'Boa precisão' :
-                 location.accuracy <= 100 ? 'Precisão razoável' :
+                {(location.accuracy ?? 0) <= 20 ? 'Excelente precisão' :
+                 (location.accuracy ?? 0) <= 50 ? 'Boa precisão' :
+                 (location.accuracy ?? 0) <= 100 ? 'Precisão razoável' :
                  'Precisão baixa'}
               </span>
             </div>
@@ -179,7 +179,7 @@ export function LocationModal({
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
               <a 
-                href={getGoogleMapsUrl(location)} 
+                href={getGoogleMapsUrlFromPunchLocation(location)} 
                 target="_blank" 
                 rel="noopener noreferrer"
               >

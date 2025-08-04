@@ -35,7 +35,7 @@ export interface PunchLocation {
   punch_type: PunchType;
   latitude: number;
   longitude: number;
-  accuracy: number;
+  accuracy: number | null;
   address?: string;
   timestamp: string;
 }
