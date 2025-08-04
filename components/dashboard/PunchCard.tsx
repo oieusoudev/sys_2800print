@@ -256,7 +256,7 @@ export function PunchCard() {
               <Button
                 key={action.type}
                 onClick={() => handlePunch(action.type)}
-                disabled={isDisabled}
+                disabled={!!isDisabled}
                 className={`${
                   isCompleted 
                     ? 'bg-slate-600 hover:bg-slate-600 cursor-not-allowed' 
