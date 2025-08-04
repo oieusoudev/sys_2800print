@@ -53,7 +53,7 @@ export function StatsCards() {
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-slate-300">
@@ -105,23 +105,6 @@ export function StatsCards() {
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-r from-green-600 to-green-700 border-green-500">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-white">
-            Valor Horas Extras
-          </CardTitle>
-          <Euro className="h-4 w-4 text-white" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-white"> 
-            € {monthlyStats.overtime_pay.toFixed(2)}
-          </div>
-          <p className="text-xs text-green-100" title={`${monthlyStats.overtime_hours.toFixed(1)} horas × €7 por hora`}>
-            {monthlyStats.overtime_hours.toFixed(1)}h × €7/h
-          </p>
-        </CardContent>
-      </Card>
-      
       {/* Debug info - só em desenvolvimento */} 
       {process.env.NODE_ENV === 'development' && monthlyStats && (
         <div className="col-span-full bg-slate-700 rounded-lg p-3 text-xs text-slate-300">

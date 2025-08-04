@@ -93,6 +93,7 @@ export function PunchCard() {
           timestamp: location.timestamp,
         },
         notes: todayEntry?.notes || notes.trim() || undefined,
+        punch_time_client: getCurrentTime(), // Enviar hora local do cliente
       };
       
       await timeEntryService.punchClock(punchData);
@@ -249,7 +250,7 @@ export function PunchCard() {
             const Icon = action.icon;
             const isCompleted = todayEntry?.[action.type];
             const isNext = action.type === nextAction;
-            const isDisabled = Boolean(!isLocationReady || isProcessing || isCompleted || (!isNext && !isCompleted));
+            const isDisabled = !isLocationReady || isProcessing || isCompleted || (!isNext && !isCompleted);
 
             return (
               <Button

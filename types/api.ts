@@ -118,6 +118,7 @@ export interface PunchRequest {
     timestamp: number;
   };
   notes?: string;
+  punch_time_client?: string; // Hora local do cliente (HH:MM)
 }
 
 export interface TimeEntryFilters {

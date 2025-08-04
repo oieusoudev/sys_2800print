@@ -53,17 +53,17 @@ export function LocationModal({
 
   const accuracyInfo = getAccuracyLevel(location.accuracy);
   const punchTypeLabels: Record<string, string> = {
-    clockIn: 'Entrada',
-    lunchOut: 'Saída Almoço',
-    lunchIn: 'Volta Almoço',
-    clockOut: 'Saída'
+    clock_in: 'Entrada',
+    lunch_out: 'Saída Almoço',
+    lunch_in: 'Volta Almoço',
+    clock_out: 'Saída'
   };
 
   const punchTypeColors: Record<string, string> = {
-    clockIn: 'text-green-400',
-    lunchOut: 'text-yellow-400',
-    lunchIn: 'text-blue-400',
-    clockOut: 'text-red-400'
+    clock_in: 'text-green-400',
+    lunch_out: 'text-yellow-400',
+    lunch_in: 'text-blue-400',
+    clock_out: 'text-red-400'
   };
 
   return (

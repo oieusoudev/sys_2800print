@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: PunchRequest = await request.json();
-    const { punch_type, location, notes } = body;
+    const { punch_type, location, notes, punch_time_client } = body;
 
     if (!punch_type || !location) {
       return NextResponse.json(
@@ -62,7 +62,8 @@ export async function POST(request: NextRequest) {
     }
 
     const today = new Date().toISOString().split('T')[0];
-    const currentTime = new Date().toTimeString().split(' ')[0];
+    // Usar hora do cliente se fornecida, senão usar hora do servidor
+    const currentTime = punch_time_client ? `${punch_time_client}:00` : new Date().toTimeString().split(' ')[0];
 
     // Buscar entrada existente para hoje
     let { data: timeEntry, error: fetchError } = await supabase
