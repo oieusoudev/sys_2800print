@@ -5,22 +5,77 @@ export function calculateHours(entry: TimeEntry): {
   regularHours: number;
   overtimeHours: number;
 } {
-  // PRIORIDADE 1: Usar valores já calculados no banco de dados
-  // Isso garante consistência total com os cálculos do backend
-  if (entry.total_hours !== undefined && entry.total_hours !== null &&
-      entry.regular_hours !== undefined && entry.regular_hours !== null &&
-      entry.overtime_hours !== undefined && entry.overtime_hours !== null) {
-    return {
-      totalHours: parseFloat(entry.total_hours.toFixed(2)),
-      regularHours: parseFloat(entry.regular_hours.toFixed(2)),
-      overtimeHours: parseFloat(entry.overtime_hours.toFixed(2))
-    };
+  // CALCULAR TOTAL DE HORAS TRABALHADAS
+  // Priorizar valor do banco se disponível, senão calcular
+  let totalHours = 0;
+  
+  if (entry.total_hours !== undefined && entry.total_hours !== null) {
+    totalHours = entry.total_hours;
+  } else {
+    // Calcular total de horas se não disponível no banco
+    totalHours = calculateTotalHoursFromPunches(entry);
   }
 
-  // FALLBACK: Calcular no frontend se os dados do DB não estiverem disponíveis
-  // Isso mantém a funcionalidade para casos onde o trigger do DB não foi executado
+  // SEMPRE RECALCULAR HORAS REGULARES E EXTRAS BASEADO NA REGRA DE NEGÓCIO
+  // Horas extras são APENAS o tempo trabalhado após as 21:00
+  const { regularHours, overtimeHours } = calculateRegularAndOvertimeHours(entry, totalHours);
+
+  return {
+    totalHours: Math.round(totalHours * 100) / 100,
+    regularHours: Math.round(regularHours * 100) / 100,
+    overtimeHours: Math.round(overtimeHours * 100) / 100
+  };
+}
+
+// Função auxiliar para calcular total de horas a partir dos pontos
+function calculateTotalHoursFromPunches(entry: TimeEntry): number {
   if (!entry.clock_in || !entry.clock_out) {
-    return { totalHours: 0, regularHours: 0, overtimeHours: 0 };
+    return 0;
+  }
+
+  // Helper para converter HH:MM:SS para minutos a partir da meia-noite
+  const timeToMinutes = (timeStr: string): number => {
+    const parts = timeStr.split(':').map(Number);
+    return parts[0] * 60 + parts[1] + (parts[2] / 60 || 0);
+  };
+
+  // Converter horários para minutos
+  const clockInMinutes = timeToMinutes(entry.clock_in);
+  let clockOutMinutes = timeToMinutes(entry.clock_out);
+  if (clockOutMinutes < clockInMinutes) {
+    clockOutMinutes += 24 * 60;
+  }
+
+  // Calcular duração do almoço
+  let lunchDurationMinutes = 0;
+  const MANDATORY_LUNCH_MINUTES = 90;
+
+  if (entry.lunch_out && entry.lunch_in) {
+    let lunchOutMinutes = timeToMinutes(entry.lunch_out);
+    let lunchInMinutes = timeToMinutes(entry.lunch_in);
+    if (lunchInMinutes < lunchOutMinutes) {
+      lunchInMinutes += 24 * 60;
+    }
+    lunchDurationMinutes = lunchInMinutes - lunchOutMinutes;
+  } else {
+    lunchDurationMinutes = MANDATORY_LUNCH_MINUTES;
+  }
+  lunchDurationMinutes = Math.max(0, lunchDurationMinutes);
+
+  // Calcular total de minutos trabalhados
+  let totalWorkMinutes = (clockOutMinutes - clockInMinutes) - lunchDurationMinutes;
+  totalWorkMinutes = Math.max(0, totalWorkMinutes);
+
+  return totalWorkMinutes / 60;
+}
+
+// Função auxiliar para calcular horas regulares e extras baseado na regra de negócio
+function calculateRegularAndOvertimeHours(entry: TimeEntry, totalHours: number): {
+  regularHours: number;
+  overtimeHours: number;
+} {
+  if (!entry.clock_in || !entry.clock_out || totalHours === 0) {
+    return { regularHours: 0, overtimeHours: 0 };
   }
 
   // Helper para converter HH:MM:SS para minutos a partir da meia-noite
@@ -65,11 +120,6 @@ export function calculateHours(entry: TimeEntry): {
   }
   lunchDurationMinutes = Math.max(0, lunchDurationMinutes);
 
-  // Calcular total de minutos trabalhados
-  let totalWorkMinutes = (clockOutMinutes - clockInMinutes) - lunchDurationMinutes;
-  totalWorkMinutes = Math.max(0, totalWorkMinutes);
-
-  const totalHours = totalWorkMinutes / 60;
   let regularHours = 0;
   let overtimeHours = 0;
 
@@ -78,7 +128,7 @@ export function calculateHours(entry: TimeEntry): {
     overtimeHours = totalHours;
     regularHours = 0;
   } else {
-    // Dia de semana: horas extras das 21:00 às 05:00
+    // Dia de semana: horas extras APENAS após as 21:00 (REGRA CRÍTICA)
     const OVERTIME_WINDOW_START = timeToMinutes('21:00:00');
     const OVERTIME_WINDOW_END = timeToMinutes('05:00:00') + 24 * 60;
 
@@ -88,7 +138,7 @@ export function calculateHours(entry: TimeEntry): {
 
     // Descontar almoço que caiu na janela de hora extra
     let lunchOverlapWithOvertime = 0;
-    if (entry.lunch_out && entry.lunch_in) {
+    if (entry.lunch_out && entry.lunch_in && lunchDurationMinutes > 0) {
       let lunchOutMinutes = timeToMinutes(entry.lunch_out);
       let lunchInMinutes = timeToMinutes(entry.lunch_in);
       if (lunchInMinutes < lunchOutMinutes) {
@@ -104,11 +154,7 @@ export function calculateHours(entry: TimeEntry): {
     regularHours = totalHours - overtimeHours;
   }
 
-  return {
-    totalHours: Math.round(totalHours * 100) / 100,
-    regularHours: Math.round(regularHours * 100) / 100,
-    overtimeHours: Math.round(overtimeHours * 100) / 100
-  };
+  return { regularHours, overtimeHours };
 }
 
 export function calculateMonthlyStats(entries: TimeEntry[]) {
